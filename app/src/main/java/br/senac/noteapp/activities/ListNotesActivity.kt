@@ -6,8 +6,10 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
 import br.senac.noteapp.R
+import br.senac.noteapp.adapter.NoteRecyclerViewAdapter
 import br.senac.noteapp.databinding.ActivityListNotesBinding
 import br.senac.noteapp.databinding.NoteCardBinding
 import br.senac.noteapp.db.AppDatabase
@@ -17,6 +19,8 @@ import java.math.RoundingMode
 
 class ListNotesActivity : AppCompatActivity() {
     lateinit var binding: ActivityListNotesBinding
+    lateinit var adapter: NoteRecyclerViewAdapter
+    val noteList = arrayListOf<Note>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,10 +31,15 @@ class ListNotesActivity : AppCompatActivity() {
             val i = Intent(this, NewNoteActivity::class.java)
             startActivity(i)
         }
+
+        adapter = NoteRecyclerViewAdapter(noteList)
+
+        binding.recyclerView.adapter = adapter
+        binding.recyclerView.layoutManager = LinearLayoutManager(this)
     }
 
     fun updateUI(notes : List<Note>) {
-        binding.noteContainer.removeAllViews()
+        //binding.noteContainer.removeAllViews()
 
         val prefManager = PreferenceManager.getDefaultSharedPreferences(this)
         val color = prefManager.getInt("noteColor", R.color.noteDefaultColor)
@@ -45,7 +54,7 @@ class ListNotesActivity : AppCompatActivity() {
 
             cardBinding.root.setCardBackgroundColor(color)
 
-            binding.noteContainer.addView(cardBinding.root)
+            //binding.noteContainer.addView(cardBinding.root)
         }
     }
 
@@ -55,7 +64,11 @@ class ListNotesActivity : AppCompatActivity() {
             val notes = db.noteDao().getAll()
 
             runOnUiThread {
-                updateUI(notes)
+                //updateUI(notes)
+                noteList.clear()
+                noteList.addAll(notes)
+
+                adapter.notifyDataSetChanged()
             }
             
         }.start()
